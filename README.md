@@ -34,6 +34,15 @@ cd macdotfile
 make
 ```
 
+### Installation Preview
+
+![Installation Preview](https://raw.githubusercontent.com/achrafAa/macdotfile/main/assets/install-preview.png)
+
+This preview shows:
+- 📦 Package installation with version tracking
+- 🔧 Dotfiles installation with backup creation
+- ✨ Clean and informative output formatting
+
 ## Available Commands
 
 | Command    | Description                           |
