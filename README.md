@@ -19,9 +19,11 @@ This repository contains scripts and configurations to set up a development envi
 
 ## Prerequisites
 
+Before you begin, ensure you have:
 - macOS
-- [Homebrew](https://brew.sh)
 - [Git](https://git-scm.com)
+
+[Homebrew](https://brew.sh) will be automatically installed if not found.
 
 ## Quick Start
 

@@ -13,6 +13,33 @@ source "$(dirname "$0")/../configs/utils/utils.sh"
 # Functions
 # =============================================================================
 
+# Check if Homebrew is installed
+check_homebrew() {
+    if ! command_exists brew; then
+        print_warning "Homebrew is not installed. Installing now..."
+        
+        # Install Homebrew
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || {
+            print_error "Failed to install Homebrew"
+            print_status "Please install it manually from https://brew.sh"
+            exit 1
+        }
+        
+        # Add Homebrew to PATH for Apple Silicon Macs
+        if [[ "$(uname -m)" == "arm64" ]]; then
+            eval "$(/opt/homebrew/bin/brew shellenv)" || {
+                print_error "Failed to add Homebrew to PATH"
+                exit 1
+            }
+        fi
+        
+        print_success "Homebrew installed successfully!"
+    fi
+    
+    # Show Homebrew version
+    print_table_row "Homebrew" "Installed" "$(brew --version | head -n 1)"
+}
+
 # Check if a package is installed
 is_package_installed() {
     local package="$1"
@@ -61,6 +88,9 @@ install_all_packages() {
     
     print_header "PACKAGE INSTALLATION" "$BLUE" "$PACKAGE_ICON"
     print_table_header
+    
+    # Check if Homebrew is installed
+    check_homebrew
     
     while IFS= read -r line || [ -n "$line" ]; do
         # Skip comments and empty lines
