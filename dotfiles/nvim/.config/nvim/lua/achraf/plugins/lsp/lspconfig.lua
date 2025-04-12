@@ -77,9 +77,12 @@ return {
 		})
 
 		-- configure typescript server with plugin
-		lspconfig["tsserver"].setup({
+		-- TODO: tsserver will be deprecated in lspconfig 0.2.1, switch to typescript when available
+		lspconfig["ts_ls"].setup({
 			capabilities = capabilities,
 			on_attach = on_attach,
+			filetypes = { "typescript", "typescriptreact", "typescript.tsx", "javascript", "javascriptreact", "javascript.jsx" },
+			root_dir = util.root_pattern("package.json", "tsconfig.json", "jsconfig.json", ".git"),
 		})
 
 		-- configure css server
