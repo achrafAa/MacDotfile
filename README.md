@@ -10,6 +10,12 @@
 
 This repository contains scripts and configurations to set up a development environment on macOS.
 
+⚠️ **Important Warning**
+> Since this project uses GNU Stow to create symbolic links, **DO NOT** remove or move the repository folder after installation. Doing so will break all symlinks to your dotfiles. If you need to move the repository:
+> 1. Run `make clean` first
+> 2. Move the folder
+> 3. Run `make dotfiles` again
+
 ## Features
 
 - 📦 Automated package installation via [Homebrew](https://brew.sh)
@@ -76,10 +82,34 @@ This preview shows:
 ## Packages
 
 The `Brewfile` includes:
-- Modern CLI tools ([bat](https://github.com/sharkdp/bat), [eza](https://github.com/eza-community/eza), [fzf](https://github.com/junegunn/fzf), etc.)
-- Development tools ([git](https://git-scm.com), [node](https://nodejs.org), [python](https://www.python.org), etc.)
-- Shell enhancements ([zsh](https://www.zsh.org), [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions), etc.)
-- And more...
+
+### Core CLI Tools
+- [bat](https://github.com/sharkdp/bat) - A cat clone with syntax highlighting
+- [eza](https://github.com/eza-community/eza) - Modern replacement for ls
+- [fzf](https://github.com/junegunn/fzf) - Fuzzy finder
+- [fd](https://github.com/sharkdp/fd) - Simple, fast alternative to find
+- [thefuck](https://github.com/nvbn/thefuck) - Magnificent app which corrects your previous console command
+- [zoxide](https://github.com/ajeetdsouza/zoxide) - Smarter cd command
+- [stow](https://www.gnu.org/software/stow/) - Symlink farm manager
+
+### Shell & Terminal
+- [zsh](https://www.zsh.org) - Z shell
+- [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions) - Fish-like autosuggestions for zsh
+- [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting) - Fish shell-like syntax highlighting
+- [nvm](https://github.com/nvm-sh/nvm) - Node Version Manager
+
+### Programming Languages
+- [node](https://nodejs.org) - Node.js JavaScript runtime
+- [python](https://www.python.org) - Python programming language
+- [go](https://go.dev) - Go programming language
+- [rust](https://www.rust-lang.org) - Rust programming language
+- [php](https://www.php.net) - PHP programming language
+
+### Applications
+- [orbstack](https://orbstack.dev) - Fast, light, and simple Docker desktop alternative
+- [iterm2](https://iterm2.com) - Terminal emulator for macOS
+
+Each package is carefully selected to enhance your development workflow. You can customize the package list by editing the `Brewfile`.
 
 ## Dotfiles
 
@@ -101,6 +131,50 @@ This will guide you through the installation of the necessary fonts and allow yo
 ## Backup
 
 Before installing dotfiles, existing configurations are automatically backed up to the `backups` directory with a timestamp.
+
+## Configuration Files
+
+### Brewfile (`packages/Brewfile`)
+
+The `Brewfile` is a configuration file that defines all packages to be installed via Homebrew. Think of it as a shopping list for your development tools:
+
+```brewfile
+# Core utilities
+brew "bat"      # Regular package installation
+brew "eza"      # Regular package installation
+cask "iterm2"   # macOS application installation
+```
+
+To modify your package list:
+1. Edit `packages/Brewfile`
+2. Add packages using:
+   - `brew "package-name"` for CLI tools and libraries
+   - `cask "app-name"` for macOS applications
+3. Run `make install` to install new packages
+
+### Dotfiles List (`dotfiles/dotfiles_list.conf`)
+
+The `dotfiles_list.conf` tells Stow which dotfile folders to symlink to your home directory:
+
+```conf
+# Shell Configuration
+zsh            # Will symlink dotfiles/zsh/.* to ~/.* 
+
+# Vim Configuration
+nvim          # Will symlink dotfiles/nvim/.* to ~/.* 
+
+# tmux Configuration
+tmux          # Will symlink dotfiles/tmux/.* to ~/.* 
+```
+
+To manage your dotfiles:
+1. Add your configuration files to the appropriate folder in `dotfiles/`
+2. Ensure the folder is listed in `dotfiles_list.conf`
+3. Run `make dotfiles` to create the symlinks
+
+⚠️ **Note**: Keep the folder structure in your dotfiles directory matching the structure you want in your home directory. For example:
+- `dotfiles/zsh/.zshrc` → `~/.zshrc`
+- `dotfiles/nvim/.config/nvim/init.lua` → `~/.config/nvim/init.lua`
 
 ## Contributing
 
