@@ -1,0 +1,32 @@
+# =============================================================================
+# Homebrew Packages Configuration
+# =============================================================================
+# This file lists all packages to be installed via Homebrew
+# =============================================================================
+
+# Core utilities
+brew "bat"
+brew "eza"
+brew "fzf"
+brew "fd"
+brew "thefuck"
+brew "zoxide"
+brew "nvm"
+brew "zsh"
+brew "git"
+brew "stow"
+
+# Shell plugins
+brew "zsh-autosuggestions"
+brew "zsh-syntax-highlighting"
+
+# Programming Languages and development tools
+brew "node"
+brew "python"
+brew "go"
+brew "rust"
+brew "php"
+
+# Casks
+cask "orbstack"
+cask "iterm2"

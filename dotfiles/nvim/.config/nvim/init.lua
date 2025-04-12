@@ -1,0 +1,5 @@
+require("achraf.core")
+require("achraf.lazy")
+require("achraf.after.colorscheme")
+require("achraf.after.telescope")
+require("achraf.after.statusline")
