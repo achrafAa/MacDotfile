@@ -66,7 +66,7 @@ print_success() {
 
 # Print an error message
 print_error() {
-    printf "${ERROR_ICON} ${RED}%s${NC}\n" "$1"
+    printf "${RED}❌ Error: %s${NC}\n" "$1"
 }
 
 # Print a warning message

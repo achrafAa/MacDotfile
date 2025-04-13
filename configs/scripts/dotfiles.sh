@@ -6,8 +6,13 @@
 # This script installs dotfiles using GNU Stow
 # =============================================================================
 
-# Source utilities
-source "$(dirname "$0")/../utils/utils.sh"
+# Source utils
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../utils/utils.sh"
+
+# Set dotfiles directory
+DOTFILES_DIR="$(cd "$SCRIPT_DIR/../../dotfiles" && pwd)"
+DOTFILES_LIST="$DOTFILES_DIR/dotfiles_list.conf"
 
 # =============================================================================
 # Functions
@@ -45,76 +50,71 @@ backup_dotfiles() {
     return 0
 }
 
-# Install dotfiles using GNU Stow
+install_zsh_plugins() {
+    print_header "🔌 Installing ZSH plugins"
+    local install_success=0
+    
+    # Install powerlevel10k
+    if ! brew list powerlevel10k &>/dev/null; then
+        print_table_row "powerlevel10k" "Installing" "via Homebrew"
+        if ! brew install powerlevel10k; then
+            print_table_row "powerlevel10k" "Failed" "Installation error"
+            install_success=1
+        else
+            print_table_row "powerlevel10k" "Installed" "✓"
+        fi
+    else
+        print_table_row "powerlevel10k" "Installed" "✓"
+    fi
+
+    # Install fzf-git.sh
+    if [ ! -d "$HOME/fzf-git.sh" ]; then
+        print_table_row "fzf-git.sh" "Installing" "via Git"
+        if ! git clone https://github.com/junegunn/fzf-git.sh.git "$HOME/fzf-git.sh"; then
+            print_table_row "fzf-git.sh" "Failed" "Installation error"
+            install_success=1
+        else
+            print_table_row "fzf-git.sh" "Installed" "✓"
+        fi
+    else
+        print_table_row "fzf-git.sh" "Installed" "✓"
+    fi
+
+    # Fix permissions for ZSH completions
+    if compaudit &>/dev/null; then
+        compaudit | xargs chmod g-w 2>/dev/null || true
+    fi
+
+    return $install_success
+}
+
 install_dotfiles() {
-    local dotfiles_dir="$(dirname "$0")/../../dotfiles"
-    local config_file="$dotfiles_dir/dotfiles_list.conf"
-    local backup_dir="$(dirname "$0")/../../backups/$(date +%Y%m%d_%H%M%S)"
+    print_header "🔧 Installing dotfiles"
     
-    # Check if dotfiles directory exists
-    if [ ! -d "$dotfiles_dir" ]; then
-        print_error "Dotfiles directory not found at $dotfiles_dir"
-        exit 1
+    # Read dotfiles list and filter out comments and empty lines
+    local dotfiles=($(grep -v '^#' "$DOTFILES_LIST" | grep -v '^[[:space:]]*$'))
+    
+    # Check if ZSH is in the list
+    if printf '%s\n' "${dotfiles[@]}" | grep -q '^zsh$'; then
+        # Install ZSH plugins first if zsh is in the list
+        if ! install_zsh_plugins; then
+            print_error "Failed to install some ZSH plugins. Please check the errors above."
+            return 1
+        fi
     fi
     
-    # Check if config file exists
-    if [ ! -f "$config_file" ]; then
-        print_error "Dotfiles configuration file not found at $config_file"
-        exit 1
-    fi
-    
-    # Check if stow is installed
-    if ! command -v stow >/dev/null 2>&1; then
-        print_error "GNU Stow is not installed. Please install it first with 'brew install stow'"
-        exit 1
-    fi
-    
-    print_header "DOTFILES INSTALLATION" "$BLUE" "$DOTFILE_ICON"
-    print_table_header "dotfiles"
-    
-    # Process each line in the config file
-    while IFS= read -r line || [ -n "$line" ]; do
-        # Skip comments and empty lines
-        [[ "$line" =~ ^#.*$ ]] && continue
-        [[ -z "$line" ]] && continue
-        
-        # Extract folder name
-        folder="$line"
-        target="$HOME/.$folder"
-        
-        # Check if already installed
-        if is_dotfiles_installed "$folder" "$target"; then
-            print_table_row "$folder" "Installed" "Already installed"
-            continue
+    # Stow each dotfile in the list
+    for dotfile in "${dotfiles[@]}"; do
+        print_table_row "$dotfile" "Installing" "via GNU Stow"
+        if ! (cd "$DOTFILES_DIR" && stow --target="$HOME" "$dotfile"); then
+            print_table_row "$dotfile" "Failed" "Stow error"
+            return 1
         fi
-        
-        # Backup existing dotfiles
-        if backup_dotfiles "$folder" "$target" "$backup_dir"; then
-            print_table_row "$folder" "Creating" "Backup created"
-        else
-            print_table_row "$folder" "Creating" "No backup needed"
-        fi
-        
-        # Create symlink
-        if [ -d "$dotfiles_dir/$folder" ]; then
-            # Force stow to adopt and override everything
-            output=$(stow --adopt --override='.*' -v -t "$HOME" -d "$dotfiles_dir" "$folder" 2>&1 && \
-                    stow --restow --override='.*' -v -t "$HOME" -d "$dotfiles_dir" "$folder" 2>&1)
-            if [ $? -eq 0 ]; then
-                print_table_row "$folder" "Success" "Created symlinks"
-            else
-                print_table_row "$folder" "Failed" "$output"
-                print_error "Failed to stow $folder. Error: $output"
-            fi
-        else
-            print_table_row "$folder" "Missing" "Folder not found in $dotfiles_dir"
-        fi
-    done < "$config_file"
-    
-    print_success "Dotfiles installation complete"
+        print_table_row "$dotfile" "Installed" "✓"
+    done
 }
 
 # =============================================================================
 # Main
 # =============================================================================
-install_dotfiles 
+install_dotfiles || exit 1 
