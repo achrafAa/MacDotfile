@@ -6,6 +6,15 @@
 # This script installs packages using Homebrew
 # =============================================================================
 
+# Define the default Homebrew installation location
+BREW_PREFIX="/usr/local"
+
+# Check if the script is called with the '--multiuser' parameter
+if [ "$1" = "--multiuser" ]; then
+  # Set the Homebrew installation location to a different directory
+  BREW_PREFIX="$HOME/.brew"
+fi
+
 # Source utilities
 source "$(dirname "$0")/../configs/utils/utils.sh"
 
@@ -19,7 +28,7 @@ check_homebrew() {
         print_warning "Homebrew is not installed. Installing now..."
         
         # Install Homebrew
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || {
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" --prefix="$BREW_PREFIX" || {
             print_error "Failed to install Homebrew"
             print_status "Please install it manually from https://brew.sh"
             exit 1
@@ -27,11 +36,12 @@ check_homebrew() {
         
         # Add Homebrew to PATH for Apple Silicon Macs
         if [[ "$(uname -m)" == "arm64" ]]; then
-            eval "$(/opt/homebrew/bin/brew shellenv)" || {
+            eval "$($BREW_PREFIX/bin/brew shellenv)" || {
                 print_error "Failed to add Homebrew to PATH"
                 exit 1
             }
         fi
+    
         
         print_success "Homebrew installed successfully!"
     fi

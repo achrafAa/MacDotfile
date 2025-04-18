@@ -15,6 +15,11 @@ check-os:
 install: check-os
 	@bash packages/packages.sh
 
+#install packages multiuser 
+.PHONY: install-multiuser
+install-multiuser: check-os
+	@bash packages/packages.sh --multiuser
+
 # Install dotfiles
 .PHONY: dotfiles
 dotfiles: check-os
@@ -39,5 +44,9 @@ clear:
 .PHONY: magic
 magic: install dotfiles
 
+# Install everything for multipleuser mac
+.PHONY: magic-multiuser
+magic-multiuser: install-multiuser dotfiles
+
 # Declare all phony targets
-.PHONY: magic check-os install dotfiles clean help clear 
+.PHONY: magic check-os install install-multiuser dotfiles clean help clear 
