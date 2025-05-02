@@ -54,5 +54,9 @@ To add new packages:
 
 To update all packages:
 ```bash
-brew update && brew upgrade
+  brew update;
+  brew upgrade;
+  for cask in $(brew list -1 --cask); do
+     brew upgrade $cask;
+  done;
 ``` 
